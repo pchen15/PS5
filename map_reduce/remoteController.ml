@@ -14,6 +14,9 @@ module Make (Job : MapReduce.Job) = struct
 	  | [] -> ()
 	  | h::t -> AQueue.push workers h; add_to_queue t in
 	add_to_queue worker_list;
+	let rec assignJobs ws = function
+      		| (s,r,w)::t -> Writer.write_line w Job.name; assignJobs t
+      		| [] -> () in
   	let rec maphelper lst =
   	  (* do something *)
   	  (* repeat for reduce *)
