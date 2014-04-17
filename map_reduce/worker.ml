@@ -13,10 +13,8 @@ module Make (Job : MapReduce.Job) = struct
         | ReduceRequest reduceJob ->
           let redRes = WorkerResponse.ReduceResult (MapReduce.Job.reduce reduceJob) in
           redRes >>| (fun res -> Protocol.send w res)
-        | _ -> failwith "stuff")
-      | _ -> failwith "no job"
-      (* replace all failwiths with error messages that the controller will handle *)
-      (* do something about the job name *)
+        | _ -> (Protocol.send w (WorkerResponse.JobFailed("failed execution"))))
+      | _ -> (Protocol.send w (WorkerResponse.JobFailed("no job")))
 
 end
 
