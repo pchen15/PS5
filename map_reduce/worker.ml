@@ -4,7 +4,19 @@ module Make (Job : MapReduce.Job) = struct
 
   (* see .mli *)
   let run r w =
-    failwith "Nowhere special?  I always wanted to go there."
+    let job = Protocol.receive r in
+    job >>| function
+      | `Ok someJob -> (match someJob with 
+        | MapRequest mapJob ->
+            let mapRes = WorkerResponse.MapResult (MapReduce.Job.map mapJob) in
+            mapRes >>| (fun res -> Protocol.send w res)
+        | ReduceRequest reduceJob ->
+          let redRes = WorkerResponse.ReduceResult (MapReduce.Job.reduce reduceJob) in
+          redRes >>| (fun res -> Protocol.send w res)
+        | _ -> failwith "stuff")
+      | _ -> failwith "no job"
+      (* replace all failwiths with error messages that the controller will handle *)
+      (* do something about the job name *)
 
 end
 
